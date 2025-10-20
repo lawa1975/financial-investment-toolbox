@@ -1,0 +1,1 @@
+How to run the python script: `python ing_securities_settlements_to_csv.py "my-files\*_some-isin_*.pdf"`
