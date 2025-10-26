@@ -18,7 +18,12 @@ if __name__ == "__main__":
     result = {}
 
     for file in parent_folder.glob(files_pattern):
-        extracted = SecuritySettlementExtractor.create_from_pdf(file).extract()
+        pdf_text = SecuritySettlementExtractor.create_from_pdf(file) 
+        extracted = pdf_text.extract()
+        model = pdf_text.extract_to_model()
+
+        print(f"----->{model.isin},{model.wkn},{model.shares:.6f}<-----")
+
         az = extracted["ausfuehrzeit"]
         isin = extracted["isin"]
         if az and isin:
@@ -48,5 +53,5 @@ if __name__ == "__main__":
     with open(f"private/output/output_{ts}.csv", 'w', newline='') as csvfile:
         fieldnames = output_entries[0].keys()
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')
-        writer.writeheader()
-        writer.writerows(output_entries)
+        #writer.writeheader()
+        #writer.writerows(output_entries)

@@ -14,6 +14,7 @@ class CurrencyEnum(str, Enum):
     USD = "USD"
 
 
+@dataclass
 class Money:
     amount: Decimal
     currency: CurrencyEnum
@@ -23,9 +24,10 @@ class Money:
 class SecuritiesSettlement:
     transaction_type: TransactionTypeEnum
     execution_time: datetime
-    isin: str
-    shares: Decimal # Nominale
-    price_per_share: Decimal # Kurs
-    market_value: str # Kurswert
+    isin: str # International Securities Identification Number
+    wkn: str # Wertpapierkennnummer
+    shares: str # Nominale
+    price_per_share: Money # Kurs
+    market_value: Money # Kurswert
     provision: Money
     final_amount: Money # negative: to be charged / positive: in favor of

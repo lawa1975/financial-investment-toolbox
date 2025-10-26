@@ -1,22 +1,64 @@
+import pymupdf
+
+from datetime import datetime
+from decimal import Decimal, getcontext
 from pathlib import Path
 from typing import Optional
-import pymupdf
+
+from ing.model import (
+    SecuritiesSettlement,
+    CurrencyEnum,
+    TransactionTypeEnum,
+    Money,
+)
+from ing.constants import SecuritySettlementConstants
 
 
 class SecuritySettlementExtractor:
     
-    def __init__(self, raw_text: str) -> None:
-        self.raw_text = raw_text
+    def __init__(self, text_lines: list[str]) -> None:
+        self.__constants = SecuritySettlementConstants()
+        self.__text_lines = text_lines
     
+    def __extract_isin_wkn(self) -> tuple[str, str]:
+        idx = self.__text_lines.index(self.__constants.ISIN_WKN_LABEL)
+        str = self.__text_lines[idx + 1]
+        isin, wkn = str.replace("(", "").replace(")", "").split(" ")
+        return (isin, wkn)
+    
+    def __extract_shares(self) -> str:
+        idx = self.__text_lines.index(self.__constants.SHARES_LABEL)
+        str = self.__text_lines[idx + 2]
+        return Decimal(str.replace(",", "."))      
+
     @staticmethod
     def create_from_pdf(filepath: Path) -> "SecuritySettlementExtractor":
         with pymupdf.open(filepath) as doc:
-            return SecuritySettlementExtractor(doc[0].get_text())
+            raw_text = doc[0].get_text()
+            text_lines = raw_text.split("\n")
+            return SecuritySettlementExtractor(text_lines)
+
+    def extract_to_model(self) -> SecuritiesSettlement:
+        getcontext().prec = 8
+
+        isin_val, wkn_val = self.__extract_isin_wkn()
+
+        return SecuritiesSettlement(
+            transaction_type=TransactionTypeEnum.BUY,
+            execution_time=datetime.now(),
+            isin=isin_val,
+            wkn=wkn_val,
+            shares=self.__extract_shares(),
+            price_per_share=Money(Decimal(0), CurrencyEnum.EUR),
+            market_value=Money(Decimal(0), CurrencyEnum.EUR),
+            provision=Money(Decimal(0), CurrencyEnum.EUR),
+            final_amount=Money(Decimal(0), CurrencyEnum.EUR)
+        )
 
     def extract(self) -> dict[str, Optional[str]]:
         result: dict[str, Optional[str]] = {}
 
-        arr = self.raw_text.split("\n")
+        arr = self.__text_lines
         
         kauf_verkauf_label = "Wertpapierabrechnung"
         kauf_verkauf_index = arr.index(kauf_verkauf_label)
