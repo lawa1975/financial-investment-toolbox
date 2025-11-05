@@ -2,11 +2,17 @@ from enum import Enum
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 
 
 class TransactionTypeEnum(str, Enum):
     BUY = "BUY"
     SELL = "SELL"
+
+
+class PaymentDirectionEnum(str, Enum):
+    AT_YOUR_EXPENSE = "AT_YOUR_EXPENSE" # german: zu Ihren Lasten
+    IN_YOUR_FAVOR = "IN_YOUR_FAVOR" # german: zu Ihren Gunsten
 
 
 class CurrencyEnum(str, Enum):
@@ -26,8 +32,9 @@ class SecuritiesSettlement:
     execution_time: datetime
     isin: str # International Securities Identification Number
     wkn: str # Wertpapierkennnummer
-    shares: str # Nominale
+    shares: Decimal # Nominale
     price_per_share: Money # Kurs
     market_value: Money # Kurswert
-    provision: Money
-    final_amount: Money # negative: to be charged / positive: in favor of
+    provision: Optional[Money]
+    payment_direction: PaymentDirectionEnum
+    final_amount: Money

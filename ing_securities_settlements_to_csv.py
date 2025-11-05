@@ -19,39 +19,37 @@ if __name__ == "__main__":
 
     for file in parent_folder.glob(files_pattern):
         pdf_text = SecuritySettlementExtractor.create_from_pdf(file) 
-        extracted = pdf_text.extract()
-        model = pdf_text.extract_to_model()
-
-        print(f"----->{model.isin},{model.wkn},{model.shares:.6f}<-----")
-
-        az = extracted["ausfuehrzeit"]
-        isin = extracted["isin"]
-        if az and isin:
-            pk = f"{az[6:10]}{az[3:5]}{az[0:2]}{az[14:16]}{az[17:19]}{az[20:22]}{isin}"
-            result[pk] = extracted
+        security_settlement = pdf_text.extract_to_model()
+        pk = f"{security_settlement.execution_time.timestamp()}{security_settlement.isin}"
+        result[pk] = security_settlement
 
     sorted_result = dict(sorted(result.items()))
 
     output_entries = []
-    for extracted in list(sorted_result.values()):
-        az = extracted["ausfuehrzeit"]
-        if az:
-            output_entries.append({
-                "ausfuehrzeit": az.replace(" um", "").replace(" Uhr", ""),
-                "isin": extracted["isin"],
-                "kauf_verkauf": extracted["kauf_verkauf"],
-                "nominale": extracted["nominale"],
-                "kurs": extracted["kurs"],
-                "kurswert": extracted["kurswert"],
-                "provision": defaults_to_zero_amount(extracted["provision"]),
-                "endbetrag_lasten": defaults_to_zero_amount(extracted["endbetrag_lasten"]),
-                "endbetrag_gunsten": defaults_to_zero_amount(extracted["endbetrag_gunsten"])        
-            })
+    for security_settlement in list(sorted_result.values()):
+        provision_str = (
+            f"{security_settlement.provision.amount:.4f} {security_settlement.provision.currency.value}"
+            if security_settlement.provision
+            else ""
+        )
+
+        output_entries.append({
+            "execution time": security_settlement.execution_time,
+            "transaction type": security_settlement.transaction_type.value,
+            "isin": security_settlement.isin,
+            "wkn": security_settlement.wkn,
+            "shares": f"{security_settlement.shares:.6f}",
+            "price_per_share": f"{security_settlement.price_per_share.amount:.4f} {security_settlement.price_per_share.currency.value}",
+            "market_value": f"{security_settlement.market_value.amount:.4f} {security_settlement.market_value.currency.value}",
+            "provision": provision_str,
+            "payment_direction": security_settlement.payment_direction.value,
+            "final_amount": f"{security_settlement.final_amount.amount:.4f} {security_settlement.final_amount.currency.value}",
+        })
  
     ts = int(datetime.datetime.now(datetime.UTC).timestamp() * 1e3)
 
     with open(f"private/output/output_{ts}.csv", 'w', newline='') as csvfile:
         fieldnames = output_entries[0].keys()
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')
-        #writer.writeheader()
-        #writer.writerows(output_entries)
+        writer.writeheader()
+        writer.writerows(output_entries)
