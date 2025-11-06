@@ -2,12 +2,8 @@ import pathlib
 import csv
 import sys
 import datetime
-from typing import Optional
 from ing.extract import SecuritySettlementExtractor
-
-
-def defaults_to_zero_amount(str: Optional[str]) -> str:
-    return str if str else "0,00"
+from ing.format import MoneyFormatter
 
 
 if __name__ == "__main__":
@@ -25,10 +21,11 @@ if __name__ == "__main__":
 
     sorted_result = dict(sorted(result.items()))
 
+    money_formatter = MoneyFormatter(4)
     output_entries = []
     for security_settlement in list(sorted_result.values()):
         provision_str = (
-            f"{security_settlement.provision.amount:.4f} {security_settlement.provision.currency.value}"
+            money_formatter.format(security_settlement.provision)
             if security_settlement.provision
             else ""
         )
@@ -39,11 +36,11 @@ if __name__ == "__main__":
             "isin": security_settlement.isin,
             "wkn": security_settlement.wkn,
             "shares": f"{security_settlement.shares:.6f}",
-            "price_per_share": f"{security_settlement.price_per_share.amount:.4f} {security_settlement.price_per_share.currency.value}",
-            "market_value": f"{security_settlement.market_value.amount:.4f} {security_settlement.market_value.currency.value}",
+            "price_per_share": money_formatter.format(security_settlement.price_per_share),
+            "market_value": money_formatter.format(security_settlement.market_value),
             "provision": provision_str,
             "payment_direction": security_settlement.payment_direction.value,
-            "final_amount": f"{security_settlement.final_amount.amount:.4f} {security_settlement.final_amount.currency.value}",
+            "final_amount": money_formatter.format(security_settlement.final_amount),
         })
  
     ts = int(datetime.datetime.now(datetime.UTC).timestamp() * 1e3)
