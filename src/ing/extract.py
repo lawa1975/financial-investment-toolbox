@@ -5,12 +5,11 @@ from decimal import Decimal, getcontext
 from pathlib import Path
 from typing import Optional
 
+from financial.model import CurrencyEnum, Money
 from ing.model import (
     SecuritiesSettlement,
-    CurrencyEnum,
     TransactionTypeEnum,
     PaymentDirectionEnum,
-    Money,
 )
 from ing.constants import SecuritySettlementConstants
 

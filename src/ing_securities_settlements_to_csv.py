@@ -3,7 +3,7 @@ import csv
 import sys
 import datetime
 from ing.extract import SecuritySettlementExtractor
-from ing.format import MoneyFormatter
+from financial.format import MoneyFormatter
 
 
 if __name__ == "__main__":
@@ -45,7 +45,7 @@ if __name__ == "__main__":
  
     ts = int(datetime.datetime.now(datetime.UTC).timestamp() * 1e3)
 
-    with open(f"private/output/output_{ts}.csv", 'w', newline='') as csvfile:
+    with open(f"../private/output/output_{ts}.csv", 'w', newline='') as csvfile:
         fieldnames = output_entries[0].keys()
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')
         writer.writeheader()

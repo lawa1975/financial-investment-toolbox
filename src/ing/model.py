@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
+from financial.model import Money
 
 
 class TransactionTypeEnum(str, Enum):
@@ -13,17 +14,6 @@ class TransactionTypeEnum(str, Enum):
 class PaymentDirectionEnum(str, Enum):
     AT_YOUR_EXPENSE = "AT_YOUR_EXPENSE" # german: zu Ihren Lasten
     IN_YOUR_FAVOR = "IN_YOUR_FAVOR" # german: zu Ihren Gunsten
-
-
-class CurrencyEnum(str, Enum):
-    EUR = "EUR"
-    USD = "USD"
-
-
-@dataclass
-class Money:
-    amount: Decimal
-    currency: CurrencyEnum
 
 
 @dataclass

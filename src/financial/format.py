@@ -1,5 +1,5 @@
 from typing import Optional
-from ing.model import Money
+from financial.model import Money
 
 class MoneyFormatter:
     decimal_places: Optional[int]
