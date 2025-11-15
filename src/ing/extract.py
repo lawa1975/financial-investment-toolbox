@@ -15,6 +15,7 @@ from ing.constants import SecuritySettlementConstants
 
 
 class SecuritySettlementExtractor:
+    """Extracts data from ING security settlement document."""
     
     def __init__(self, text_lines: list[str]) -> None:
         self.__constants = SecuritySettlementConstants()
@@ -141,3 +142,6 @@ class SecuritySettlementExtractor:
             payment_direction=payment_direction,
             final_amount=final_amount
         )
+    
+    def get_text_lines(self):
+        return self.__text_lines

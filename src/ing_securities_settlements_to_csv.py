@@ -14,8 +14,10 @@ if __name__ == "__main__":
     result = {}
 
     for file in parent_folder.glob(files_pattern):
-        pdf_text = SecuritySettlementExtractor.create_from_pdf(file) 
-        security_settlement = pdf_text.extract_to_model()
+        extractor = SecuritySettlementExtractor.create_from_pdf(file)
+        print("---------------> ")
+        print(extractor.get_text_lines())
+        security_settlement = extractor.extract_to_model()
         pk = f"{security_settlement.execution_time.timestamp()}{security_settlement.isin}"
         result[pk] = security_settlement
 
