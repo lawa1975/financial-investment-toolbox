@@ -142,6 +142,3 @@ class SecuritySettlementExtractor:
             payment_direction=payment_direction,
             final_amount=final_amount
         )
-    
-    def get_text_lines(self):
-        return self.__text_lines
